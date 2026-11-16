@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#10131c" />
+  <title>Rasa AI — Persona yang terasa hidup</title>
+  <meta name="description" content="Rancang persona AI, berbincang, dan lihat perubahan enam emosinya melalui grafik dan kaomoji." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./reference.css" />
+  <link rel="stylesheet" href="./preferences.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand"><span class="brand-mark">✳</span><div><strong>rasa<span>ai</span></strong><small>PERSONA STUDIO</small></div><button class="sidebar-close" id="sidebarClose" type="button" aria-label="Tutup daftar percakapan">×</button></div>
+      <button class="new-chat" id="newChat"><span>＋</span> Percakapan baru</button>
+      <button type="button" class="sidebar-settings live-launch" id="openLive"><span aria-hidden="true">◉</span><span>Live Char</span><span aria-hidden="true">›</span></button>
+      <details class="group-controls"><summary>♧ Grup Chat</summary><p>Pilih minimal dua persona untuk percakapan aktif. Mereka menjawab bergiliran.</p><div id="groupPersonas"></div><button type="button" id="saveGroup">Simpan peserta</button><span id="groupStatus" role="status"></span></details>
+      <div class="sidebar-label sidebar-persona-label">PERSONA AI</div>
+      <button class="sidebar-persona" id="sidebarPersonaButton" type="button" aria-label="Ubah persona AI">
+        <span class="sidebar-persona-face" id="sidebarPersonaFace" aria-hidden="true">(◕‿◕)</span>
+        <span class="sidebar-persona-copy"><strong>Ubah Persona AI</strong><small id="sidebarPersonaMeta">Aika · ENFP · Deredere</small></span>
+        <span class="sidebar-persona-arrow" aria-hidden="true">›</span>
+      </button>
+      <div class="sidebar-label sidebar-settings-label">PREFERENSI</div>
+      <button class="sidebar-settings" id="sidebarSettingsButton" type="button"><span aria-hidden="true">⚙</span><span>Pengaturan</span><span aria-hidden="true">›</span></button>
+      <div class="sidebar-label">PERCAKAPAN</div>
+      <label class="field history-search">Cari riwayat<input id="historySearch" type="search" placeholder="Cari judul atau pesan" /></label>
+      <nav id="chatList" class="chat-list" aria-label="Daftar percakapan"></nav>
+      <div class="sidebar-label export-label">UNDUH PERCAKAPAN AKTIF</div>
+      <div class="export-actions"><button type="button" id="exportTxt">Unduh TXT</button><button type="button" id="exportJson">Unduh JSON</button></div>
+      <div class="sidebar-bottom"><div class="status-dot"></div><span id="sidebarUserLabel">Ruang privatmu</span><span class="sidebar-sparkle">✦</span></div>
+    </aside>
+
+    <main class="main-panel">
+      <header class="topbar">
+        <button class="icon-button mobile-menu" id="menuToggle" aria-label="Buka menu">☰</button>
+        <div class="topbar-title"><button class="top-avatar" id="topAvatar" aria-label="Lihat spektrum emosi">(◕‿◕)</button><div><strong id="topName">Aika</strong><small><span class="online-dot"></span><span id="topStatus">Siap mengobrol</span></small></div></div>
+        <div class="top-actions"><span class="mode-pill" id="modePill">✦ MODE DEMO</span><button class="icon-button" id="settingsToggle" aria-label="Buka pengaturan" title="Pengaturan">⚙</button></div>
+      </header>
+
+      <div class="chat-content" id="chatContent" aria-live="polite"></div>
+      <div class="scenario-bar"><button type="button" id="scenarioButton">✧ Skenario percakapan</button><span id="scenarioStatus"></span><label>Persona yang menjawab <select id="replyPersona" aria-label="Persona yang menjawab"></select></label></div>
+
+      <div class="composer-wrap">
+        <div class="quick-prompts" id="quickPrompts"><button data-prompt="Ceritakan sesuatu yang membuatmu senang hari ini">Apa yang membuatmu senang?</button><button data-prompt="Aku sedang sedih dan ingin ditemani">Aku butuh teman bicara</button><button data-prompt="Menurutmu bagaimana jika kita bertualang ke bulan?">Ayo berimajinasi</button></div>
+        <div class="composer-foot"><span>Deteksi Intensitas Pesan: <strong id="intensityDisplay">—</strong></span><span id="draftStatus">Pesan kosong</span></div>
+        <form class="composer" id="composer"><label class="attachment-button" title="Lampirkan gambar atau dokumen"><span aria-hidden="true">＋</span><span class="sr-only">Lampirkan gambar atau dokumen</span><input type="file" id="chatAttachment" aria-label="Lampirkan gambar atau dokumen" accept="image/png,image/jpeg,image/webp,text/plain,.txt,.md,.pdf,.docx" /></label><textarea id="messageInput" rows="1" placeholder="Tulis pesan untuk Aika... (Enter untuk kirim)" aria-label="Pesan" maxlength="4000"></textarea><button class="icon-button" id="voiceInput" type="button" aria-label="Dikte pesan" title="Dikte pesan">🎙</button><button class="send-button" id="sendButton" type="submit" aria-label="Kirim pesan"><span aria-hidden="true">➤</span><span>Kirim</span></button></form><div class="attachment-status"><span id="attachmentStatus" role="status"></span><button type="button" id="clearAttachment" hidden>Hapus lampiran</button></div>
+        <span class="connection-hint" id="connectionHint">Respons demo bersifat simulasi</span>
+      </div>
+    </main>
+
+    <aside class="inspector" id="inspector">
+      <div class="inspector-head"><div><span class="eyebrow">DASHBOARD PERSONA</span><h2>Di balik ekspresi</h2></div><button class="icon-button close-inspector" id="closeInspector" aria-label="Tutup panel">×</button></div>
+      <div class="persona-card" id="personaCard"><div class="persona-glow"></div><img class="persona-photo" id="personaPhoto" alt="Foto profil persona" hidden /><button class="persona-face" id="personaFace" type="button" aria-label="Mainkan reaksi kaomoji">(◕‿◕)</button><div class="face-hint" id="faceHint">Sentuh untuk bereaksi ✦</div><div class="persona-name" id="personaName">Aika</div><div class="persona-tagline" id="personaTagline">Teman ngobrol yang hangat dan ekspresif</div><div class="persona-badges"><span id="mbtiBadge">ENFP</span><span id="archetypeBadge">Deredere</span></div></div>
+      <div class="emotion-heading"><div><span class="eyebrow">SUASANA SAAT INI</span><h3>Spektrum emosi</h3></div><span class="live-badge"><i></i> LIVE</span></div>
+      <p class="emotion-note">Interpretasi ekspresi persona pada respons terakhir, bukan pengukuran perasaan nyata.</p>
+      <div class="emotion-chart" id="emotionChart"></div>
+      <div class="emotion-heading"><h3>Riwayat emosi</h3></div><div id="emotionHistory" class="emotion-history" aria-label="Grafik riwayat emosi"></div>
+      <div class="mood-summary" id="moodSummary"><span class="mood-icon" id="moodKaomoji">(◕‿◕)</span><div><small>EKSPRESI DOMINAN</small><strong id="moodLabel">Senang</strong></div></div>
+      <button class="customize-button" id="customizeButton"><span>✧</span> Sesuaikan persona <span>↗</span></button>
+    </aside>
+  </div>
+
+  <div class="overlay" id="overlay" hidden></div>
+  <section class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle" hidden>
+    <div class="drawer-head"><div><span class="eyebrow">PERSONA STUDIO</span><h2 id="drawerTitle">Bentuk karakternya</h2></div><button class="icon-button" id="closeDrawer" aria-label="Tutup pengaturan">×</button></div>
+    <div class="drawer-body">
+      <div class="drawer-intro">Beri AI identitas dan sifat yang kamu suka. Pengaturan ini memengaruhi gaya jawabannya saat model API tersambung.</div>
+      <div class="range-title">Buat persona dari tokoh</div><p class="drawer-intro">Cari tokoh sejarah, figur publik, atau karakter fiksi di Wikipedia. Pilih hasil yang sesuai, lalu analisis dengan model BYOK. Hasil dapat diedit sebelum disimpan.</p>
+      <label class="field">Nama tokoh dan asal karya<input id="characterSearch" maxlength="100" placeholder="Contoh: Sherlock Holmes, novel" /></label>
+      <label class="field">Bahasa sumber<select id="characterLanguage"><option value="id">Indonesia</option><option value="en">Inggris</option></select></label>
+      <button type="button" class="save-preset-button" id="searchCharacter">Cari sumber</button><p id="characterStatus" class="saved-persona-status" role="status" aria-live="polite"></p><div id="characterResults"></div><div class="divider"></div>
+      <div class="range-title">Cari publikasi Crossref</div><p class="drawer-intro">Cari artikel atau buku berdasarkan nama dan topik. Periksa sumber sebelum menambahkannya sebagai rujukan.</p><label class="field">Kata kunci publikasi<input id="crossrefQuery" maxlength="100" placeholder="Nama tokoh atau topik" /></label><button type="button" class="save-preset-button" id="searchCrossref">Cari publikasi</button><p id="crossrefStatus" role="status"></p><div id="crossrefResults"></div><div class="divider"></div>
+      <label class="field">Nama AI<input id="personaNameInput" maxlength="30" placeholder="Contoh: Aika" /></label>
+      <div class="field photo-field"><span>Foto profil persona</span><div class="photo-picker"><img id="photoPreview" alt="Pratinjau foto profil persona" hidden /><span class="photo-placeholder" id="photoPlaceholder">✦</span><div><input id="personaPhotoInput" type="file" accept="image/png,image/jpeg,image/webp" aria-label="Pilih foto profil persona" /><button type="button" class="photo-remove" id="removePersonaPhoto">Hapus foto</button></div></div><small>JPG, PNG, atau WebP. Foto disimpan bersama persona di browser ini.</small><span class="photo-error" id="photoError" role="status"></span></div>
+      <label class="field">Deskripsi singkat<input id="personaTaglineInput" maxlength="100" placeholder="Teman ngobrol yang hangat..." /></label>
+      <div class="field-grid"><label class="field">MBTI<select id="mbtiInput"></select></label><label class="field">Arketipe<select id="archetypeInput"><option>Deredere</option><option>Tsundere</option><option>Yandere</option><option>Kuudere</option><option>Dandere</option><option>Custom</option></select></label></div>
+      <label class="field">Kepribadian & watak<textarea id="personalityInput" rows="3" maxlength="500" placeholder="Jelaskan sifat, cara bicara, dan nilai-nilainya"></textarea></label>
+      <label class="field">Contoh dialog<textarea id="dialogExamplesInput" rows="3" maxlength="2000" placeholder="Pengguna: Hai!&#10;Persona: Oh, kamu datang juga."></textarea></label>
+      <label class="field">Kosakata khas<input id="vocabularyInput" maxlength="300" placeholder="Contoh: sapaan dan ungkapan khas" /></label>
+      <label class="field">Disukai dan dihindari<textarea id="likesAvoidsInput" rows="2" maxlength="600" placeholder="Contoh: menyukai teka-teki, menghindari basa-basi"></textarea></label>
+      <label class="field">Reaksi dalam situasi tertentu<textarea id="reactionsInput" rows="2" maxlength="600" placeholder="Contoh: saat gugup, ia berbicara lebih pelan"></textarea></label>
+      <label class="field">Memori persona <small>(satu ingatan per baris)</small><textarea id="memoryInput" rows="4" maxlength="4000" placeholder="Contoh: Pengguna suka musik jazz"></textarea></label><p class="drawer-intro">Di chat, awali pesan dengan “Ingat bahwa …” untuk menambahkan ingatan. Memori digunakan pada mode model API.</p>
+      <label class="field">Sumber dan kutipan <small>(satu sumber per baris; tautan dan kutipan singkat)</small><textarea id="sourcesInput" rows="3" maxlength="4000" placeholder="https://... — kutipan atau fakta dari sumber"></textarea></label><p class="drawer-intro">Kepribadian di atas adalah interpretasi; sumber dicatat terpisah sebagai rujukan.</p>
+      <div class="range-title">Pengaturan respons</div>
+      <label class="field">Panjang jawaban<select id="replyLengthInput"><option value="singkat">Singkat</option><option value="sedang">Sedang</option><option value="panjang">Panjang</option></select></label>
+      <label class="field">Gaya bahasa<input id="replyStyleInput" maxlength="100" placeholder="Contoh: santai dan hangat" /></label>
+      <label class="range-row"><span>Kreativitas</span><input id="creativityInput" type="range" min="0" max="100" /><output id="creativityValue"></output></label>
+      <label class="range-row"><span>Perubahan emosi</span><input id="emotionSpeedInput" type="range" min="0" max="100" /><output id="emotionSpeedValue"></output></label>
+      <div class="export-actions"><button type="button" id="exportPersona">Unduh persona JSON</button><label class="file-button">Impor persona<input type="file" id="importPersona" accept="application/json,.json" /></label></div><p id="personaTransferStatus" role="status"></p>
+      <div class="range-section"><div class="range-title">Nuansa karakter</div><label class="range-row"><span>Kehangatan</span><input id="warmthInput" type="range" min="0" max="100" /><output id="warmthValue">75%</output></label><label class="range-row"><span>Ekspresif</span><input id="expressiveInput" type="range" min="0" max="100" /><output id="expressiveValue">85%</output></label><label class="range-row"><span>Jenaka</span><input id="playfulInput" type="range" min="0" max="100" /><output id="playfulValue">65%</output></label></div>
+      <div class="divider"></div>
+      <div class="saved-persona-head"><div><div class="range-title">Persona tersimpan</div><p>Simpan karakter ini sebagai profil baru dan gunakan kembali kapan saja.</p></div><button type="button" class="save-preset-button" id="savePreset">＋ Simpan</button></div>
+      <div class="saved-persona-list" id="savedPersonaList" role="list" aria-label="Persona tersimpan"></div>
+      <p class="saved-persona-status" id="savedPersonaStatus" role="status" aria-live="polite"></p>
+      <div class="divider"></div>
+      <div class="range-title">BYOK · Gunakan kunci API sendiri</div><div class="drawer-intro">Pilih Model API, lalu masukkan endpoint Chat Completions yang kompatibel OpenAI, nama model, dan kunci dari penyedia pilihanmu. Kunci hanya disimpan dalam memori tab; masukkan lagi setelah memuat ulang. Pesan dikirim langsung ke endpoint yang kamu tentukan.</div>
+      <label class="field">Mode<select id="modeInput"><option value="demo">Demo interaktif</option><option value="api">Model API</option></select></label>
+      <div id="apiFields"><label class="field">Endpoint Chat Completions<input id="endpointInput" type="url" placeholder="https://api.openai.com/v1/chat/completions" /></label><label class="field">Nama model<input id="modelInput" placeholder="gpt-4.1-mini" /></label><label class="field">Kunci API (hanya selama tab terbuka)<input id="apiKeyInput" type="password" autocomplete="off" placeholder="Kunci API milikmu" /></label><button type="button" class="save-preset-button" id="testApi">Uji koneksi</button><p class="saved-persona-status" id="apiStatus" role="status" aria-live="polite"></p></div>
+    </div>
+    <div class="drawer-foot"><button id="resetPersona" class="text-button">Reset persona</button><button id="savePersona" class="primary-button">Simpan perubahan</button></div>
+  </section>
+  <section class="drawer settings-drawer" id="settingsDrawer" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" hidden>
+    <div class="drawer-head"><div><span class="eyebrow">PREFERENSI</span><h2 id="settingsTitle">Pengaturan</h2></div><button class="icon-button" id="closeSettings" aria-label="Tutup pengaturan">×</button></div>
+    <div class="drawer-body">
+      <div class="range-title">Tentang kamu</div><p class="drawer-intro">Persona akan memakai informasi ini untuk menyapamu saat model API tersambung.</p>
+      <button type="button" class="sidebar-settings" id="openByok">⚙ &nbsp; Koneksi model dan kunci API (BYOK) <span aria-hidden="true">›</span></button><div class="divider"></div>
+      <label class="field">Nama panggilanmu<input id="userNameInput" maxlength="40" placeholder="Nama yang ingin dipakai persona" /></label>
+      <label class="field">Hubungan dengan persona<select id="relationshipInput"><option value="teman">Teman</option><option value="sahabat">Sahabat</option><option value="rekan">Rekan diskusi</option><option value="mentor">Mentor</option><option value="custom">Lainnya</option></select></label>
+      <label class="field" id="customRelationshipField" hidden>Jelaskan hubunganmu<input id="customRelationshipInput" maxlength="80" placeholder="Contoh: partner menulis cerita" /></label>
+      <div class="divider"></div>
+      <div class="range-title">Tampilan aplikasi</div><p class="drawer-intro">Atur suasana dan kenyamanan membaca. Perubahan terlihat langsung.</p>
+      <div class="range-title">Privasi dan data</div><label class="field">Simpan riwayat<select id="retentionInput"><option value="forever">Sampai dihapus</option><option value="30">30 hari</option><option value="7">7 hari</option><option value="session">Hanya selama tab terbuka</option></select></label><button type="button" class="save-preset-button" id="deletePersonaChats">Hapus riwayat persona aktif</button><p class="drawer-intro">Penghapusan permanen. Unduh cadangan terlebih dahulu jika ingin menyimpan riwayat.</p>
+      <div class="export-actions"><button type="button" id="backupData">Unduh cadangan</button><label class="file-button">Pulihkan cadangan<input type="file" id="restoreData" accept="application/json,.json" /></label></div><p id="backupStatus" role="status"></p>
+      <label class="field">Tema<select id="themeInput"><option value="light">Terang</option><option value="dark">Gelap</option><option value="rose">Rosé</option></select></label>
+      <label class="field">Font<select id="fontInput"><option value="dm">DM Sans</option><option value="space">Space Grotesk</option><option value="nunito">Nunito</option></select></label>
+      <label class="field">Ukuran huruf<select id="fontSizeInput"><option value="90">Kecil (90%)</option><option value="100">Normal (100%)</option><option value="110">Besar (110%)</option><option value="120">Sangat besar (120%)</option></select></label>
+      <p class="settings-status" id="settingsStatus" role="status" aria-live="polite"></p>
+    </div>
+    <div class="drawer-foot"><button id="resetSettings" class="text-button">Reset tampilan</button><button id="saveSettings" class="primary-button">Simpan pengaturan</button></div>
+  </section>
+  <section id="liveView" class="live-view" role="dialog" aria-modal="true" aria-labelledby="liveTitle" hidden>
+    <header class="live-header"><div><span class="eyebrow">MODE LIVE CHAR</span><h2 id="liveTitle">Berinteraksi langsung</h2></div><button type="button" id="closeLive" class="icon-button" aria-label="Tutup Live Char">×</button></header>
+    <div class="live-body"><div class="live-stage" id="liveStage"><div class="live-halo"></div><div class="live-persona-name" id="liveName">Aika</div><button type="button" class="live-face" id="liveFace" aria-label="Mainkan reaksi kaomoji">(◕‿◕)</button><div class="live-mood" id="liveMood">Senang</div><div class="live-audio-state" id="liveAudioState" role="status">Siap berbicara</div></div>
+      <div class="live-transcript"><span class="eyebrow">PERCAKAPAN TERAKHIR</span><p id="liveReply">Mulai percakapan lewat teks atau mikrofon.</p></div>
+    </div>
+    <div class="live-controls"><div class="live-voice-options"><label><input type="checkbox" id="liveTts" checked /> Bacakan balasan</label><label for="liveVoice">Suara</label><select id="liveVoice"><option value="">Suara default browser</option></select><button type="button" id="stopSpeech" class="text-button">Hentikan suara</button></div><form id="liveComposer" class="live-composer"><button type="button" id="liveMic" aria-label="Mulai dikte" title="Mulai dikte">🎙</button><input id="liveInput" maxlength="4000" aria-label="Pesan Live Char" placeholder="Tulis pesan atau gunakan mikrofon…" /><button type="submit" id="liveSend">Kirim</button></form><small>Hasil dikte bisa diperiksa dan diedit sebelum dikirim.</small></div>
+  </section>
+  <script src="./vendor/jszip.min.js"></script><script src="./app.js"></script>
+</body>
+</html>
