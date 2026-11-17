@@ -8,6 +8,8 @@ node server.js
 
 Buka `http://127.0.0.1:4173/` di browser. Gunakan `PORT=...` bila port 4173 sudah dipakai.
 
+Situs GitHub Pages menggunakan folder `dist` dan diterbitkan oleh workflow GitHub Actions pada setiap push ke `main`. Data lokal dari localhost tidak otomatis berpindah ke domain GitHub Pages; gunakan fitur cadangan untuk memindahkannya.
+
 ## Fitur
 
 - Identitas persona: nama, deskripsi, MBTI, arketipe (Deredere, Tsundere, Yandere, Kuudere, Dandere, Custom), watak, dan tiga penggeser sifat.
