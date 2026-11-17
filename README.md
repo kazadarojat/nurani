@@ -2,6 +2,8 @@
 
 Prototipe chat persona AI berbahasa Indonesia. Jalankan dengan Node.js dari folder ini:
 
+Unduhan aplikasi tersedia di [folder downloads](downloads/README.md): Windows `.exe` dan Android `.apk` versi uji.
+
 ```powershell
 node server.js
 ```
